@@ -67,6 +67,39 @@ class MTSPRequest(BaseModel):
         le=300,
         description="Maximum time allowed for solving (1-300 seconds)"
     )
+    
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "cities": [
+                        {"id": 0, "name": "Depot"},
+                        {"id": 1, "name": "CityA"},
+                        {"id": 2, "name": "CityB"},
+                        {"id": 3, "name": "CityC"}
+                    ],
+                    "distance_matrix": [
+                        [0, 10, 20, 15],
+                        [10, 0, 25, 30],
+                        [20, 25, 0, 12],
+                        [15, 30, 12, 0]
+                    ],
+                    "num_salesmen": 2,
+                    "depot_city_id": 0,
+                    "constraints": {
+                        "mandatory_city_assignments": [
+                            {"salesman_id": 0, "city_id": 1}
+                        ],
+                        "consecutive_visits": [
+                            {"city_id_1": 3, "city_id_2": 2}
+                        ],
+                        "starting_cities": []
+                    },
+                    "max_solve_time_seconds": 30
+                }
+            ]
+        }
+    }
 
     @field_validator('distance_matrix')
     @classmethod
