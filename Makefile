@@ -1,4 +1,9 @@
-.PHONY: install run dev test lint format clean help
+.PHONY: install run dev test lint format clean help sample
+
+# Configuration for sample generation
+C ?= 20
+S ?= 4
+O ?= request_sample.json
 
 # Default target
 help:
@@ -6,6 +11,7 @@ help:
 	@echo "  make install    - Install dependencies using Poetry"
 	@echo "  make run        - Run the FastAPI server"
 	@echo "  make dev        - Run the FastAPI server with auto-reload"
+	@echo "  make sample     - Generate sample request JSON (use C=20 S=4 O=file.json)"
 	@echo "  make test       - Run tests"
 	@echo "  make lint       - Run linting"
 	@echo "  make format     - Format code"
@@ -22,6 +28,10 @@ run:
 # Run the server with auto-reload for development
 dev:
 	poetry run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+# Generate a sample request JSON file
+sample:
+	python3 generate_sample.py -c $(C) -s $(S) -o $(O)
 
 # Run tests
 test:

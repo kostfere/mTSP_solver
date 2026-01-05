@@ -86,7 +86,8 @@ async def solve(request: MTSPRequest) -> MTSPResponse:
         [10, 0]
       ],
       "num_salesmen": 1,
-      "depot_city_id": 0
+      "depot_city_id": 0,
+      "optimize": false
     }
     ```
     
@@ -113,7 +114,8 @@ async def solve(request: MTSPRequest) -> MTSPResponse:
         "consecutive_visits": [{"city_id_1": 3, "city_id_2": 2}],
         "starting_cities": [{"salesman_id": 1, "city_id": 2}]
       },
-      "max_solve_time_seconds": 30
+      "max_solve_time_seconds": 30,
+      "optimize": true
     }
     ```
     """

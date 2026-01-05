@@ -99,7 +99,8 @@ class MTSPRequest(BaseModel):
                         ],
                         "starting_cities": []
                     },
-                    "max_solve_time_seconds": 30
+                    "max_solve_time_seconds": 30,
+                    "optimize": False
                 }
             ]
         }
