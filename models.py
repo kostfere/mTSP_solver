@@ -18,12 +18,12 @@ class MandatoryCityConstraint(BaseModel):
 
 
 class ConsecutiveVisitConstraint(BaseModel):
-    """Constraint: city_id_1 must be visited immediately after city_id_2.
+    """Constraint: city_id_1 must be visited immediately before city_id_2.
     
-    Order: city_id_2 → city_id_1 (city_id_2 is visited first, then city_id_1)
+    Order: city_id_1 → city_id_2 (city_id_1 is visited first, then city_id_2)
     """
-    city_id_1: int = Field(..., ge=0, description="City to visit second (immediately after city_id_2)")
-    city_id_2: int = Field(..., ge=0, description="City to visit first (immediately before city_id_1)")
+    city_id_1: int = Field(..., ge=0, description="City to visit first (immediately before city_id_2)")
+    city_id_2: int = Field(..., ge=0, description="City to visit second (immediately after city_id_1)")
 
 
 class StartingCityConstraint(BaseModel):
@@ -40,7 +40,7 @@ class Constraints(BaseModel):
     )
     consecutive_visits: list[ConsecutiveVisitConstraint] = Field(
         default_factory=list,
-        description="List of consecutive visit constraints (city_id_2 → city_id_1)"
+        description="List of consecutive visit constraints (city_id_1 → city_id_2)"
     )
     starting_cities: list[StartingCityConstraint] = Field(
         default_factory=list,
@@ -67,6 +67,44 @@ class MTSPRequest(BaseModel):
         le=300,
         description="Maximum time allowed for solving (1-300 seconds)"
     )
+    optimize: bool = Field(
+        default=False,
+        description="If True, spend full time limit optimizing for best solution. If False (default), return immediately when first feasible solution is found."
+    )
+    
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "cities": [
+                        {"id": 0, "name": "Depot"},
+                        {"id": 1, "name": "CityA"},
+                        {"id": 2, "name": "CityB"},
+                        {"id": 3, "name": "CityC"}
+                    ],
+                    "distance_matrix": [
+                        [0, 10, 20, 15],
+                        [10, 0, 25, 30],
+                        [20, 25, 0, 12],
+                        [15, 30, 12, 0]
+                    ],
+                    "num_salesmen": 2,
+                    "depot_city_id": 0,
+                    "constraints": {
+                        "mandatory_city_assignments": [
+                            {"salesman_id": 0, "city_id": 1}
+                        ],
+                        "consecutive_visits": [
+                            {"city_id_1": 3, "city_id_2": 2}
+                        ],
+                        "starting_cities": []
+                    },
+                    "max_solve_time_seconds": 30,
+                    "optimize": False
+                }
+            ]
+        }
+    }
 
     @field_validator('distance_matrix')
     @classmethod

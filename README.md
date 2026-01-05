@@ -6,7 +6,7 @@ A FastAPI application for solving the **Multiple Traveling Salesmen Problem (mTS
 
 - Solve mTSP with multiple salesmen
 - **Mandatory city assignments**: Force a salesman to visit specific cities
-- **Consecutive visits**: Require cities to be visited one after another (city_id_2 → city_id_1)
+- **Consecutive visits**: Require cities to be visited one after another (city_id_1 → city_id_2)
 - **Starting city constraints**: Specify different starting points for salesmen
 
 ## Setup
@@ -57,13 +57,14 @@ Content-Type: application/json
       {"salesman_id": 0, "city_id": 1}
     ],
     "consecutive_visits": [
-      {"city_id_1": 4, "city_id_2": 3}
+      {"city_id_1": 3, "city_id_2": 4}
     ],
     "starting_cities": [
       {"salesman_id": 1, "city_id": 2}
     ]
   },
-  "max_solve_time_seconds": 30
+  "max_solve_time_seconds": 30,
+  "optimize": false
 }
 ```
 
@@ -102,7 +103,7 @@ Salesman 0 **must** visit city 1.
 
 ### Consecutive Visits
 ```json
-{"city_id_1": 4, "city_id_2": 3}
+{"city_id_1": 3, "city_id_2": 4}
 ```
 City 3 must be visited **immediately before** city 4 (order: 3 → 4).
 
