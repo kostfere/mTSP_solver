@@ -120,10 +120,18 @@ def _solve_with_ortools(request: MTSPRequest) -> SolverResult:
     search_parameters.first_solution_strategy = (
         routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
     )
-    search_parameters.local_search_metaheuristic = (
-        routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
-    )
-    search_parameters.time_limit.seconds = request.max_solve_time_seconds
+    
+    # Only use metaheuristic optimization if explicitly requested
+    if request.optimize:
+        search_parameters.local_search_metaheuristic = (
+            routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
+        )
+        search_parameters.time_limit.seconds = request.max_solve_time_seconds
+    else:
+        # Return immediately when first solution is found
+        search_parameters.solution_limit = 1
+        # Still set a time limit as a safety net
+        search_parameters.time_limit.seconds = request.max_solve_time_seconds
     
     # Solve the problem
     solution = routing.SolveWithParameters(search_parameters)
@@ -185,12 +193,12 @@ def _apply_consecutive_visit_constraints(
 ) -> None:
     """Apply consecutive visit constraints.
     
-    city_id_2 → city_id_1 means city_id_2 is visited, then immediately city_id_1.
-    We model this as a pickup-delivery pair where city_id_2 is pickup and city_id_1 is delivery.
+    city_id_1 → city_id_2 means city_id_1 is visited, then immediately city_id_2.
+    We model this as a pickup-delivery pair where city_id_1 is pickup and city_id_2 is delivery.
     """
     for cv in constraints.consecutive_visits:
-        pickup_index = manager.NodeToIndex(cv.city_id_2)  # First city (pickup)
-        delivery_index = manager.NodeToIndex(cv.city_id_1)  # Second city (delivery)
+        pickup_index = manager.NodeToIndex(cv.city_id_1)  # First city (pickup)
+        delivery_index = manager.NodeToIndex(cv.city_id_2)  # Second city (delivery)
         
         if pickup_index == -1 or delivery_index == -1:
             continue
@@ -203,7 +211,7 @@ def _apply_consecutive_visit_constraints(
             routing.VehicleVar(pickup_index) == routing.VehicleVar(delivery_index)
         )
         
-        # Ensure pickup comes before delivery (city_id_2 before city_id_1)
+        # Ensure pickup comes before delivery (city_id_1 before city_id_2)
         distance_dimension = routing.GetDimensionOrDie('Distance')
         routing.solver().Add(
             distance_dimension.CumulVar(pickup_index) < distance_dimension.CumulVar(delivery_index)

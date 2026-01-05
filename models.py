@@ -18,12 +18,12 @@ class MandatoryCityConstraint(BaseModel):
 
 
 class ConsecutiveVisitConstraint(BaseModel):
-    """Constraint: city_id_1 must be visited immediately after city_id_2.
+    """Constraint: city_id_1 must be visited immediately before city_id_2.
     
-    Order: city_id_2 → city_id_1 (city_id_2 is visited first, then city_id_1)
+    Order: city_id_1 → city_id_2 (city_id_1 is visited first, then city_id_2)
     """
-    city_id_1: int = Field(..., ge=0, description="City to visit second (immediately after city_id_2)")
-    city_id_2: int = Field(..., ge=0, description="City to visit first (immediately before city_id_1)")
+    city_id_1: int = Field(..., ge=0, description="City to visit first (immediately before city_id_2)")
+    city_id_2: int = Field(..., ge=0, description="City to visit second (immediately after city_id_1)")
 
 
 class StartingCityConstraint(BaseModel):
@@ -40,7 +40,7 @@ class Constraints(BaseModel):
     )
     consecutive_visits: list[ConsecutiveVisitConstraint] = Field(
         default_factory=list,
-        description="List of consecutive visit constraints (city_id_2 → city_id_1)"
+        description="List of consecutive visit constraints (city_id_1 → city_id_2)"
     )
     starting_cities: list[StartingCityConstraint] = Field(
         default_factory=list,
@@ -66,6 +66,10 @@ class MTSPRequest(BaseModel):
         ge=1,
         le=300,
         description="Maximum time allowed for solving (1-300 seconds)"
+    )
+    optimize: bool = Field(
+        default=False,
+        description="If True, spend full time limit optimizing for best solution. If False (default), return immediately when first feasible solution is found."
     )
     
     model_config = {
